@@ -1,34 +1,93 @@
+import java.io.IOException;
+import java.util.List;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
+
 public class Main {
     static final String URI = "bolt://localhost:7687";
-    static final String USER = "neo4j";
-    static final String PASSWORD = "admin";
-    static final int PERSONS = 100;
-    static final int TRANSACTIONS = 100000;
+    static final int TRANSACTIONS = 1000;
+    static final int MAMMOTH_DELAY = 5000;
+    static final boolean BALANCED = true;
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws InterruptedException {
+        System.out.printf("Starting experiment for %s transactions...\n", TRANSACTIONS);
+        var startTime = System.nanoTime();
 
-        try (var coordinator = new BoltCoordinator(URI, USER, PASSWORD, PERSONS)) {
-            System.out.printf("Initialising database with %s persons...\n", PERSONS);
-            var startLoadTime = System.nanoTime();
-            coordinator.initialiseDatabase();
-            var endLoadTime = System.nanoTime();
-            var loadDuration = (double) (endLoadTime - startLoadTime) / 1000000.0 / 1000.0;
-            System.out.printf("Database initialised in %.2f seconds\n", loadDuration);
+        List<Long> personIds;
+        try (var coordinator = new BoltDriverUtils(URI)) {
+            personIds = coordinator.getAllPersonIds(BALANCED);
+        }
 
-            System.out.printf("Starting experiment for %s transactions...\n", TRANSACTIONS);
-            try (var client = new BoltClient(URI, USER, PASSWORD, PERSONS)) {
-                var startTime = System.nanoTime();
-                client.run(TRANSACTIONS);
-                var endTime = System.nanoTime();
-                var duration = (double) (endTime - startTime) / 1000000.0 / 1000.0;
-                var throughput = (double) TRANSACTIONS / duration;
-                System.out.printf("Throughput: %.2f (transactions/s)\n", throughput);
-                System.out.printf("Experiment finished in %.2f seconds\n", duration );
+        BlockingQueue<Integer> requests = new LinkedBlockingQueue<>();
+        BlockingQueue<Integer> shutdown = new LinkedBlockingQueue<>();
+
+        var m = new Metrics(requests, shutdown);
+        initMetrics(m).start();
+
+        var oltp = createOltpClient(personIds, shutdown, m);
+        var mammoth = createMammothClient(shutdown, MAMMOTH_DELAY, BALANCED);
+        var threads = List.of(oltp, mammoth);
+        threads.forEach(Thread::start);
+
+
+        var finished = 0;
+        while (true) {
+            if (shutdown.size() > 0) {
+                shutdown.take();
+                finished++;
             }
 
-            System.out.println("Tearing down database...");
-            coordinator.tearDownDatabase();
-            System.out.println("Database destroyed");
+            if (finished == 2) {
+                System.out.println("Clients finished");
+                break;
+            }
         }
+
+        // shutdown metrics
+        requests.put(0);
+
+        while (true) {
+            if (shutdown.size() > 0) {
+                shutdown.take();
+                break;
+            }
+        }
+        var endTime = System.nanoTime();
+        var duration = (double) (endTime - startTime) / 1000000.0 / 1000.0;
+        System.out.printf("Experiment finished in %.2f seconds\n", duration);
+    }
+
+    private static Thread createMammothClient(BlockingQueue<Integer> shutdown, int delayInMillis, boolean balanced) {
+        return new Thread(() -> {
+            try (var client = new BoltMammothDriver(URI, shutdown, delayInMillis, balanced)) {
+                try {
+                    client.run(1);
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        });
+    }
+
+    private static Thread createOltpClient(List<Long> personIds, BlockingQueue<Integer> shutdown, Metrics m) {
+        return new Thread(() -> {
+            try (var client = new BoltOltpDriver(URI, personIds, m, shutdown)) {
+                try {
+                    client.run(TRANSACTIONS);
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        });
+    }
+
+    private static Thread initMetrics(Metrics m) {
+        return new Thread(() -> {
+            try {
+                m.run();
+            } catch (InterruptedException | IOException e) {
+                throw new RuntimeException(e);
+            }
+        });
     }
 }

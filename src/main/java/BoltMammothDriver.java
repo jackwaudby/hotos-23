@@ -7,36 +7,35 @@ import java.util.concurrent.BlockingQueue;
 
 public class BoltMammothDriver implements MammothDriver, AutoCloseable {
     private final Driver driver;
-    private final BlockingQueue<Integer> shutdown;
+    private final BlockingQueue<Integer> out;
     private final int delayInMillis;
-
     private final boolean balanced;
+    private final Metrics metrics;
 
-    public BoltMammothDriver(String uri, BlockingQueue<Integer> shutdown, int delayInMillis, boolean balanced) {
+    public BoltMammothDriver(String uri, Metrics metrics, BlockingQueue<Integer> out, int delayInMillis, boolean balanced) {
         this.driver = GraphDatabase.driver(uri);
-        this.shutdown = shutdown;
+        this.out = out;
         this.delayInMillis = delayInMillis;
         this.balanced = balanced;
+        this.metrics = metrics;
     }
 
     @Override
-    public void run(int transactions) throws InterruptedException {
-        System.out.println("Start mammoth driver");
-
+    public void run() throws InterruptedException {
         try (var session = driver.session()) {
-            for (int i = 0; i < transactions; i++) {
-                Thread.sleep(delayInMillis);
-                mammothTransaction(session);
-            }
+            Thread.sleep(delayInMillis);
+            mammothTransaction(session);
         }
-        System.out.println("Shutdown mammoth driver");
-        shutdown.put(0);
+        out.put(0);
     }
 
 
     @Override
     public void mammothTransaction(Session session) {
         System.out.println("Start mammoth transaction");
+        var startTime = System.nanoTime();
+
+        metrics.markMammoth();
         var txn = session.beginTransaction();
         if (balanced) {
             txn.run("""
@@ -85,7 +84,10 @@ public class BoltMammothDriver implements MammothDriver, AutoCloseable {
         }
         txn.commit();
         txn.close();
-        System.out.println("Stop mammoth transaction");
+        metrics.markMammoth();
+        var endTime = System.nanoTime();
+        var duration = (double) (endTime - startTime) / 1000000.0 / 1000.0;
+        System.out.printf("Mammoth transaction finished in %.2f seconds\n", duration);
     }
 
     @Override

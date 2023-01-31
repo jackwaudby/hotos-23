@@ -1,16 +1,19 @@
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
 public class Main {
     static final String URI = "bolt://localhost:7687";
-    static final int TRANSACTIONS = 1000;
-    static final int MAMMOTH_DELAY = 5000;
+    static final int MAMMOTH_DELAY = 1; // secs
+    static final int EXPERIMENT_DURATION = 10; // secs
+    static final int READERS = 5;
+    static final int WRITERS = 1;
     static final boolean BALANCED = true;
 
     public static void main(String[] args) throws InterruptedException {
-        System.out.printf("Starting experiment for %s transactions...\n", TRANSACTIONS);
+        System.out.println("Starting experiment...");
         var startTime = System.nanoTime();
 
         List<Long> personIds;
@@ -19,36 +22,44 @@ public class Main {
         }
 
         BlockingQueue<Integer> requests = new LinkedBlockingQueue<>();
-        BlockingQueue<Integer> shutdown = new LinkedBlockingQueue<>();
+        BlockingQueue<Integer> shutdownNotification = new LinkedBlockingQueue<>();
 
-        var m = new Metrics(requests, shutdown);
+        var m = new Metrics(requests, shutdownNotification);
         initMetrics(m).start();
 
-        var oltp = createOltpClient(personIds, shutdown, m);
-        var mammoth = createMammothClient(shutdown, MAMMOTH_DELAY, BALANCED);
-        var threads = List.of(oltp, mammoth);
-        threads.forEach(Thread::start);
+        List<Thread> clients = new ArrayList<>();
+        List<BlockingQueue<Integer>> notifyShutdown = new ArrayList<>();
 
+        createOltpReadClients(personIds, shutdownNotification, m, clients, notifyShutdown);
+        createOltpReadWriteClients(personIds, shutdownNotification, m, clients, notifyShutdown);
+        clients.forEach(Thread::start);
+        createMammothClient(shutdownNotification, MAMMOTH_DELAY * 1000, BALANCED, m).start();
+
+        Thread.sleep(EXPERIMENT_DURATION * 1000);
+
+        notifyShutdown.forEach(ch -> {
+            try {
+                ch.put(0);
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+        });
 
         var finished = 0;
-        while (true) {
-            if (shutdown.size() > 0) {
-                shutdown.take();
+        do {
+            if (shutdownNotification.size() > 0) {
+                shutdownNotification.take();
                 finished++;
             }
 
-            if (finished == 2) {
-                System.out.println("Clients finished");
-                break;
-            }
-        }
+        } while (finished != clients.size());
 
         // shutdown metrics
         requests.put(0);
 
         while (true) {
-            if (shutdown.size() > 0) {
-                shutdown.take();
+            if (shutdownNotification.size() > 0) {
+                shutdownNotification.take();
                 break;
             }
         }
@@ -57,11 +68,29 @@ public class Main {
         System.out.printf("Experiment finished in %.2f seconds\n", duration);
     }
 
-    private static Thread createMammothClient(BlockingQueue<Integer> shutdown, int delayInMillis, boolean balanced) {
+    private static void createOltpReadWriteClients(List<Long> personIds, BlockingQueue<Integer> out, Metrics m, List<Thread> clients, List<BlockingQueue<Integer>> notifyShutdown) {
+        for (int i = 0; i < READERS; i++) {
+            BlockingQueue<Integer> channel = new LinkedBlockingQueue<>();
+            notifyShutdown.add(channel);
+            var client = createOltpClient(personIds, channel, out, m, true);
+            clients.add(client);
+        }
+    }
+
+    private static void createOltpReadClients(List<Long> personIds, BlockingQueue<Integer> out, Metrics m, List<Thread> clients, List<BlockingQueue<Integer>> notifyShutdown) {
+        for (int i = 0; i < WRITERS; i++) {
+            BlockingQueue<Integer> in = new LinkedBlockingQueue<>();
+            notifyShutdown.add(in);
+            var oltpClient = createOltpClient(personIds, in, out, m, false);
+            clients.add(oltpClient);
+        }
+    }
+
+    private static Thread createMammothClient(BlockingQueue<Integer> out, int delayInMillis, boolean balanced, Metrics metrics) {
         return new Thread(() -> {
-            try (var client = new BoltMammothDriver(URI, shutdown, delayInMillis, balanced)) {
+            try (var client = new BoltMammothDriver(URI, metrics, out, delayInMillis, balanced)) {
                 try {
-                    client.run(1);
+                    client.run();
                 } catch (InterruptedException e) {
                     throw new RuntimeException(e);
                 }
@@ -69,11 +98,11 @@ public class Main {
         });
     }
 
-    private static Thread createOltpClient(List<Long> personIds, BlockingQueue<Integer> shutdown, Metrics m) {
+    private static Thread createOltpClient(List<Long> personIds, BlockingQueue<Integer> in, BlockingQueue<Integer> out, Metrics metrics, boolean rw) {
         return new Thread(() -> {
-            try (var client = new BoltOltpDriver(URI, personIds, m, shutdown)) {
+            try (var client = new BoltOltpDriver(URI, metrics, in, out, personIds, rw)) {
                 try {
-                    client.run(TRANSACTIONS);
+                    client.run();
                 } catch (InterruptedException e) {
                     throw new RuntimeException(e);
                 }

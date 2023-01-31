@@ -7,19 +7,20 @@ import java.util.TimerTask;
 import java.util.concurrent.BlockingQueue;
 
 public class Metrics {
-
     private final BlockingQueue<Integer> in;
     private final BlockingQueue<Integer> out;
-
     private int currentCommitted;
-
     private final List<Integer> committed;
+    private int currentMammoth;
+    private final List<Integer> mammoth;
 
-    public Metrics(BlockingQueue<Integer> requests, BlockingQueue<Integer> shutdown) {
-        this.in = requests;
-        this.out = shutdown;
+    public Metrics(BlockingQueue<Integer> in, BlockingQueue<Integer> out) {
+        this.in = in;
+        this.out = out;
         this.currentCommitted = 0;
+        this.currentMammoth = 0;
         this.committed = new ArrayList<>();
+        this.mammoth = new ArrayList<>();
     }
 
     public void run() throws InterruptedException, IOException {
@@ -38,9 +39,12 @@ public class Metrics {
                 t.cancel();
 
                 FileWriter writer = new FileWriter("test.csv");
-                for (Integer re : getCommitted()) {
-                    writer.append(String.valueOf(re));
+                for (int i = 0; i < committed.size(); i++) {
+                    writer.append(String.valueOf(committed.get(i)));
+                    writer.append(",");
+                    writer.append(String.valueOf(mammoth.get(i)));
                     writer.append("\n");
+
                 }
                 writer.close();
                 break;
@@ -51,9 +55,17 @@ public class Metrics {
 
     private void collect() {
         synchronized (this) {
-            System.out.println("committed: " + getCount());
+            System.out.print("committed: " + getCount() + "\r");
             committed.add(getCount());
+            mammoth.add(getMammoth());
+            currentMammoth = 0;
             currentCommitted = 0;
+        }
+    }
+
+    private int getMammoth() {
+        synchronized (this) {
+            return currentMammoth;
         }
     }
 
@@ -69,9 +81,9 @@ public class Metrics {
         }
     }
 
-    public List<Integer> getCommitted() {
+    public void markMammoth() {
         synchronized (this) {
-            return committed;
+            currentMammoth++;
         }
     }
 }

@@ -12,40 +12,35 @@ public class BoltOltpDriver implements OltpDriver, AutoCloseable {
     private final Random rand;
     private final List<Long> personIds;
     private final Metrics metrics;
-    private final BlockingQueue<Integer> shutdown;
+    private final BlockingQueue<Integer> in;
+    private final BlockingQueue<Integer> out;
 
-    public BoltOltpDriver(String uri, List<Long> personIds, Metrics metrics, BlockingQueue<Integer> shutdown) {
+    private final boolean rw;
+
+
+    public BoltOltpDriver(String uri, Metrics metrics, BlockingQueue<Integer> in, BlockingQueue<Integer> out, List<Long> personIds, boolean rw) {
         this.driver = GraphDatabase.driver(uri);
         this.rand = new Random();
         this.personIds = personIds;
         this.metrics = metrics;
-        this.shutdown = shutdown;
+        this.out = out;
+        this.in = in;
+        this.rw = rw;
     }
 
     @Override
-    public void run(int transactions) throws InterruptedException {
-        System.out.println("Start oltp driver");
+    public void run() throws InterruptedException {
         try (var session = driver.session()) {
-            System.out.println("Start oltp transactions");
-            for (int i = 0; i < transactions; i++) {
-                var n = rand.nextDouble();
-                if (n < 0.5) {
-                    readTransaction(session);
-                } else {
+            while (in.size() == 0) {
+                if (rw) {
                     readWriteTransaction(session);
+                } else {
+                    readTransaction(session);
                 }
                 incCommitted();
             }
-            System.out.println("Stop oltp transactions");
         }
-
-        System.out.println("Shutdown oltp driver");
-        shutdown.put(0);
-    }
-
-
-    private void incCommitted() {
-        this.metrics.increment();
+        out.put(0);
     }
 
     @Override
@@ -53,7 +48,7 @@ public class BoltOltpDriver implements OltpDriver, AutoCloseable {
         var personId = getPersonId();
 
         var txn = session.beginTransaction();
-        var res = txn.run("""
+        txn.run("""
                 MATCH (n:Person {id: $personId })-[:IS_LOCATED_IN]->(p:City)
                 RETURN
                     n.firstName AS firstName,
@@ -83,6 +78,10 @@ public class BoltOltpDriver implements OltpDriver, AutoCloseable {
     @Override
     public void close() throws RuntimeException {
         driver.close();
+    }
+
+    private void incCommitted() {
+        this.metrics.increment();
     }
 
     private long getPersonId() {

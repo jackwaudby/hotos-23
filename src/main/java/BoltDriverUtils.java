@@ -74,32 +74,4 @@ public class BoltDriverUtils implements AutoCloseable {
     public void close() throws RuntimeException {
         driver.close();
     }
-
-//    public void initialiseDatabase() {
-//        var txn = driver.session().beginTransaction();
-//
-//        for (int i = 1; i <= persons; i++) {
-//            txn.run("CREATE (:Person {id: $personId})", ImmutableMap.of("personId", i));
-//        }
-//
-//        for (int j = 1; j <= persons; j++) {
-//            for (int k = j + 1; k <= persons; k++) {
-//                txn.run("""
-//                        MATCH (a:Person {id: $person1Id}), (b:Person {id: $person2Id})
-//                        CREATE (a)-[r:KNOWS]->(b)""", ImmutableMap.of("person1Id", j, "person2Id", k));
-//            }
-//        }
-//
-//        txn.commit();
-//        txn.close();
-//    }
-
-//    public void tearDownDatabase() {
-//        var txn = driver.session().beginTransaction();
-//        txn.run("MATCH (n) DETACH DELETE n");
-//        txn.commit();
-//        txn.close();
-//    }
-
-
 }

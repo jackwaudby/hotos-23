@@ -2,3 +2,6 @@
 target/
 *.iml
 *.csv
+*.png
+*.pdf
+ssh_keys/*

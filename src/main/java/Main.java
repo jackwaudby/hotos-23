@@ -1,3 +1,6 @@
+import picocli.CommandLine;
+import picocli.CommandLine.Option;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -5,20 +8,36 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
 public class Main {
-    static final String URI = "bolt://localhost:7687";
-    static final int MAMMOTH_DELAY = 1; // secs
-    static final int EXPERIMENT_DURATION = 10; // secs
-    static final int READERS = 5;
-    static final int WRITERS = 1;
-    static final boolean BALANCED = true;
+
+    @Option(names = {"-u", "--uri"}, description = "Neo4j URI")
+    private static String URI = "bolt://localhost:7687";
+
+    @Option(names = {"-m", "--mammothDelay"}, description = "Delay before starting mammoth transaction (secs)")
+    private static int MAMMOTH_DELAY = 10;
+
+    @Option(names = {"-b", "--balanced"}, description = "Balanced or unbalanced workload")
+    private static String BALANCED = "false";
+
+    @Option(names = {"-r", "--readClients"}, description = "Read clients")
+    private static int READERS = 5;
+
+    @Option(names = {"-w", "--writeClients"}, description = "Write clients")
+    private static int WRITERS = 1;
+
+    @Option(names = {"-d", "--duration"}, description = "Experiment duration (secs)")
+    private static long EXPERIMENT_DURATION = 10;
 
     public static void main(String[] args) throws InterruptedException {
-        System.out.println("Starting experiment...");
+        System.out.printf("Starting %s experiment for %s secs...\n", BALANCED, EXPERIMENT_DURATION);
+        System.out.println("Readers: " + READERS);
+        System.out.println("Writers: " + WRITERS);
+        System.out.println("Mammoth delay: " + MAMMOTH_DELAY);
+
         var startTime = System.nanoTime();
 
         List<Long> personIds;
         try (var coordinator = new BoltDriverUtils(URI)) {
-            personIds = coordinator.getAllPersonIds(BALANCED);
+            personIds = coordinator.getAllPersonIds(Boolean.parseBoolean(BALANCED));
         }
 
         BlockingQueue<Integer> requests = new LinkedBlockingQueue<>();
@@ -33,7 +52,7 @@ public class Main {
         createOltpReadClients(personIds, shutdownNotification, m, clients, notifyShutdown);
         createOltpReadWriteClients(personIds, shutdownNotification, m, clients, notifyShutdown);
         clients.forEach(Thread::start);
-        createMammothClient(shutdownNotification, MAMMOTH_DELAY * 1000, BALANCED, m).start();
+        createMammothClient(shutdownNotification, MAMMOTH_DELAY * 1000, Boolean.parseBoolean(BALANCED), m).start();
 
         Thread.sleep(EXPERIMENT_DURATION * 1000);
 

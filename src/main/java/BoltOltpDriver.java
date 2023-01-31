@@ -85,19 +85,6 @@ public class BoltOltpDriver implements OltpDriver, AutoCloseable {
     }
 
     private long getPersonId() {
-        var size = 0;
-        var n = 0;
-        var res = 0;
-        try {
-            size = personIds.size();
-            n = rand.nextInt(size);
-            res = Math.toIntExact(personIds.get(n));
-        } catch (Exception e) {
-            System.out.println("size: " + size);
-            System.out.println("next: " + n);
-            e.printStackTrace();
-        }
-
-        return res;
+        return personIds.get(rand.nextInt(personIds.size()));
     }
 }

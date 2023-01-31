@@ -61,12 +61,11 @@ public class BoltDriverUtils implements AutoCloseable {
 
                 var result = tx.run(query);
                 result.stream().forEach(record -> personIds.add(record.get(0).asLong()));
-                System.out.println("Acquired parameters");
 
                 return null;
             });
         }
-
+        System.out.printf("Acquired %s parameters\n", personIds.size());
         return personIds;
     }
 

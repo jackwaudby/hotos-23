@@ -34,13 +34,12 @@ public class BoltMammothDriver implements MammothDriver, AutoCloseable {
     public void mammothTransaction(Session session) {
         System.out.println("Start mammoth transaction");
         var startTime = System.nanoTime();
-
+//        WHERE NONE(node IN nodes(p) WHERE NOT (node)-[:IS_LOCATED_IN]-(:City)-[:IS_PART_OF]-(:Country {name: "China"}) )
         metrics.markMammoth();
         var txn = session.beginTransaction();
         if (balanced) {
             txn.run("""
-                    MATCH p=(a:Person)-[:KNOWS*3]->(:Person)
-                    WHERE NONE(node IN nodes(p) WHERE NOT (node)-[:IS_LOCATED_IN]-(:City)-[:IS_PART_OF]-(:Country {name: "China"}) )
+                    MATCH p=(:Person)-[:KNOWS*2]->(:Person)                  
                     FOREACH (n IN nodes(p) | SET n.hit = (CASE WHEN n.hit IS NULL THEN 0 ELSE n.hit + 1 END))""");
         } else {
             txn.run("""

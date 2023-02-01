@@ -11,5 +11,5 @@ p1 = ggplot(data = raw, aes(x = 1:nrow(raw), y = thpt)) +
   geom_line() + xlab("secs") + ylab("throughput (txn/s)") + 
    theme_bw()
 p1 = p1 + geom_vline(xintercept = which(raw$mammoth == 1),color = "red")
-p1
+
 ggsave("../plot.png", p1, width = 8, height = 6, device = "png")

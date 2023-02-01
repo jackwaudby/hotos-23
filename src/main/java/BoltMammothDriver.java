@@ -39,7 +39,7 @@ public class BoltMammothDriver implements MammothDriver, AutoCloseable {
         var txn = session.beginTransaction();
         if (balanced) {
             txn.run("""
-                    MATCH p=(:Person)-[:KNOWS*2]->(:Person)                  
+                    MATCH p=(:Person)-[:KNOWS*2]->(:Person)
                     FOREACH (n IN nodes(p) | SET n.hit = (CASE WHEN n.hit IS NULL THEN 0 ELSE n.hit + 1 END))""");
         } else {
             txn.run("""
@@ -71,7 +71,6 @@ public class BoltMammothDriver implements MammothDriver, AutoCloseable {
                             ORDER BY
                               messageCount DESC,
                               person.id ASC
-                            LIMIT 1000
                             SET person.posterType = "topPoster"
                             RETURN
                               person.id AS personId,

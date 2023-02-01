@@ -39,7 +39,8 @@ public class BoltMammothDriver implements MammothDriver, AutoCloseable {
         var txn = session.beginTransaction();
         if (balanced) {
             txn.run("""
-                    MATCH p=(a:Person)-[:KNOWS*2]->(:Person)
+                    MATCH p=(a:Person)-[:KNOWS*6]->(:Person)
+                    WHERE NONE(node IN nodes(p) WHERE NOT (node)-[:IS_LOCATED_IN]-(:City)-[:IS_PART_OF]-(:Country {name: "Vietnam"}) )
                     FOREACH (n IN nodes(p) | SET n.hit = (CASE WHEN n.hit IS NULL THEN 0 ELSE n.hit + 1 END))""");
         } else {
             txn.run("""

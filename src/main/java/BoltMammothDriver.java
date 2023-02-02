@@ -48,7 +48,7 @@ public class BoltMammothDriver implements MammothDriver, AutoCloseable {
                             WITH country, forum, count(person) AS numberOfMembers
                             ORDER BY numberOfMembers DESC, forum.id ASC, country.id
                             WITH DISTINCT forum AS topForum
-                            LIMIT 10
+                            LIMIT 100
 
                             WITH collect(topForum) AS topForums
 

@@ -53,7 +53,6 @@ public class BoltDriverUtils implements AutoCloseable {
                                 ORDER BY
                                 messageCount DESC,
                                 person.id ASC
-                                LIMIT 100
                                 RETURN
                                 person.id AS personId\
                             """, ImmutableMap.of("date", 1280102400000L));

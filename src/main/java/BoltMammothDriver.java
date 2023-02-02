@@ -72,7 +72,7 @@ public class BoltMammothDriver implements MammothDriver, AutoCloseable {
                               messageCount DESC,
                               person.id ASC
                             SET person.posterType = "topPoster"
-                            LIMIT 10
+                            LIMIT 100
                             RETURN
                               person.id AS personId,
                               person.firstName AS personFirstName,

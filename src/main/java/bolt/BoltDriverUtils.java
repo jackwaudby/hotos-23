@@ -1,3 +1,5 @@
+package bolt;
+
 import com.google.common.collect.ImmutableMap;
 import org.neo4j.driver.Driver;
 import org.neo4j.driver.GraphDatabase;

@@ -1,7 +1,7 @@
 *.idea/
 target/
 *.iml
-*.csv
+test.csv
 *.png
 *.pdf
 ssh_keys/*

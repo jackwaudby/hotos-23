@@ -1,3 +1,7 @@
+package bolt;
+
+import utils.Metrics;
+
 import com.google.common.collect.ImmutableMap;
 import org.neo4j.driver.Driver;
 import org.neo4j.driver.GraphDatabase;
@@ -7,7 +11,7 @@ import java.util.List;
 import java.util.Random;
 import java.util.concurrent.BlockingQueue;
 
-public class BoltOltpDriver implements OltpDriver, AutoCloseable {
+public class BoltOltpDriver implements utils.Driver, AutoCloseable {
     private final Driver driver;
     private final Random rand;
     private final List<Long> personIds;
@@ -43,8 +47,8 @@ public class BoltOltpDriver implements OltpDriver, AutoCloseable {
         out.put(0);
     }
 
-    @Override
     public void readTransaction(Session session) {
+
         var personId = getPersonId();
 
         var txn = session.beginTransaction();
@@ -63,7 +67,6 @@ public class BoltOltpDriver implements OltpDriver, AutoCloseable {
         txn.close();
     }
 
-    @Override
     public void readWriteTransaction(Session session) {
         var personId = getPersonId();
         var txn = session.beginTransaction();

@@ -1,11 +1,14 @@
+package bolt;
+
 import com.google.common.collect.ImmutableMap;
 import org.neo4j.driver.Driver;
 import org.neo4j.driver.GraphDatabase;
 import org.neo4j.driver.Session;
+import utils.Metrics;
 
 import java.util.concurrent.BlockingQueue;
 
-public class BoltMammothDriver implements MammothDriver, AutoCloseable {
+public class BoltMammothDriver implements utils.Driver, AutoCloseable {
     private final Driver driver;
     private final BlockingQueue<Integer> out;
     private final int delayInMillis;
@@ -30,7 +33,6 @@ public class BoltMammothDriver implements MammothDriver, AutoCloseable {
     }
 
 
-    @Override
     public void mammothTransaction(Session session) {
         System.out.println("Start mammoth transaction");
         var startTime = System.nanoTime();

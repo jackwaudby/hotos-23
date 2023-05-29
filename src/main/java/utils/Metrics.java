@@ -1,3 +1,5 @@
+package utils;
+
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -41,11 +43,14 @@ public class Metrics {
                 FileWriter writer = new FileWriter("test.csv");
                 for (int i = 0; i < committed.size(); i++) {
                     writer.append(String.valueOf(committed.get(i)));
+                    System.out.println(committed.get(i));
                     writer.append(",");
                     writer.append(String.valueOf(mammoth.get(i)));
                     writer.append("\n");
 
                 }
+                System.out.println("I've definitely written something");
+
                 writer.close();
                 break;
             }
@@ -55,7 +60,7 @@ public class Metrics {
 
     private void collect() {
         synchronized (this) {
-            System.out.print("committed: " + getCount() + "\r");
+            System.out.print("Committed: " + getCount() + "\r");
             committed.add(getCount());
             mammoth.add(getMammoth());
             currentMammoth = 0;
@@ -75,7 +80,7 @@ public class Metrics {
         }
     }
 
-    void increment() {
+    public void increment() {
         synchronized (this) {
             currentCommitted++;
         }

@@ -56,26 +56,26 @@ public class Main implements Callable<Integer> {
 
         var startTime = System.nanoTime();
 
-        List<Long> personIds;
-        if (SYSTEM.equals("postgres")) {
-            personIds = List.of(1L);
-        } else {
-            try (var coordinator = new BoltDriverUtils(URI)) {
-                personIds = coordinator.getAllPersonIds(Boolean.parseBoolean(BALANCED));
-                var writer = new FileWriter("./u-params.csv");
-                var collect = personIds.stream().map(Object::toString).collect(Collectors.joining(","));
-                writer.write(collect);
-                writer.close();
-
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
-        }
-
-        System.exit(0);
+//        List<Long> personIds;
+//        if (SYSTEM.equals("postgres")) {
+//            personIds = List.of(1L);
+//        } else {
+//            try (var coordinator = new BoltDriverUtils(URI)) {
+//                personIds = coordinator.getAllPersonIds(Boolean.parseBoolean(BALANCED));
+//                var writer = new FileWriter("./u-params.csv");
+//                var collect = personIds.stream().map(Object::toString).collect(Collectors.joining(","));
+//                writer.write(collect);
+//                writer.close();
+//
+//            } catch (IOException e) {
+//                throw new RuntimeException(e);
+//            }
+//        }
+//
+//        System.exit(0);
 
         // load parameters in
-//        List<Long> personIds = new ArrayList<>();
+        List<Long> personIds = new ArrayList<>();
         try (BufferedReader br = new BufferedReader(new FileReader(params))) {
             String line;
             while ((line = br.readLine()) != null) {

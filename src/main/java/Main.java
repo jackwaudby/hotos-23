@@ -1,4 +1,3 @@
-import bolt.BoltDriverUtils;
 import bolt.BoltMammothDriver;
 import bolt.BoltOltpDriver;
 import picocli.CommandLine;
@@ -9,7 +8,6 @@ import utils.Metrics;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;

@@ -26,6 +26,13 @@ public class PostgresMammothDriver implements Driver {
                 FROM person a
                 JOIN person_knows_person k1 ON k1.person1id = a.id
                 JOIN person_knows_person k2 ON k2.person1id = k1.person2id AND k2.person2id != a.id
+                UNION
+                -- 4-hop
+                SELECT k3.person2id AS id, 4 AS hops
+                FROM person a
+                JOIN person_knows_person k1 ON k1.person1id = a.id
+                JOIN person_knows_person k2 ON k2.person1id = k1.person2id AND k2.person2id != a.id
+                JOIN person_knows_person k3 ON k3.person1id = k2.person2id AND k3.person2id != a.id AND k3.person2id != k2.person2id
               ) AS sub
               WHERE person.id = sub.id""";
 

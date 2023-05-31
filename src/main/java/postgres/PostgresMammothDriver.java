@@ -56,7 +56,7 @@ public class PostgresMammothDriver implements Driver {
               ) ForumMembershipPerCountry
               GROUP BY ForumId
               ORDER BY maxNumberOfMembers DESC, ForumId
-              LIMIT 100
+              LIMIT 1000
             )
             SELECT au.id AS "person.id"
                  , au.firstName AS "person.firstName"

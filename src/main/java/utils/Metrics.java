@@ -43,14 +43,13 @@ public class Metrics {
                 FileWriter writer = new FileWriter("test.csv");
                 for (int i = 0; i < committed.size(); i++) {
                     writer.append(String.valueOf(committed.get(i)));
-                    System.out.println(committed.get(i));
                     writer.append(",");
                     writer.append(String.valueOf(mammoth.get(i)));
                     writer.append("\n");
 
                 }
-                System.out.println("I've definitely written something");
 
+                writer.flush();
                 writer.close();
                 break;
             }

@@ -29,7 +29,7 @@ public class PostgresOltpDriver implements Driver {
         ds.setDefaultAutoCommit(false);
         ds.setDatabaseName("ldbcsnb");
         ds.setServerName("localhost");
-        ds.setPortNumber(5432);
+        ds.setPortNumber(5435);
         ds.setUser("postgres");
         ds.setPassword("mysecretpassword");
         this.rand = new Random();

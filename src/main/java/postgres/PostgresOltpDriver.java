@@ -45,7 +45,11 @@ public class PostgresOltpDriver implements Driver {
         try (Connection conn = PostgresDriverUtils.startTransaction(ds); Statement st = conn.createStatement()) {
             while (in.size() == 0) {
                 if (rw) {
-                    readWriteTransaction(st);
+                    try {
+                        readWriteTransaction(st);
+                    } catch (SQLException e) {
+                        System.out.println("Aborted");
+                    }
                 } else {
                     readTransaction(st);
                 }
@@ -60,9 +64,6 @@ public class PostgresOltpDriver implements Driver {
 
     public void readWriteTransaction(Statement st) throws SQLException {
         ImmutableMap<String,Object> params = ImmutableMap.of("personId", getPersonId());
-        var write1 = "select * from person where id = $personId for update";
-        var input1 = PostgresDriverUtils.substituteParameters(write1, params);
-        st.execute(input1);
         var write2 = "update person set lastSeen = 209483257 where id = $personId";
         var input2 = PostgresDriverUtils.substituteParameters(write2, params);
         st.executeUpdate(input2);

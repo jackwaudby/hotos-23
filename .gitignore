@@ -5,3 +5,4 @@ test.csv
 *.png
 *.pdf
 ssh_keys/*
+*.Rhistory

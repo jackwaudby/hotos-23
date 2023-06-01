@@ -60,10 +60,12 @@ public class PostgresOltpDriver implements Driver {
 
     public void readWriteTransaction(Statement st) throws SQLException {
         ImmutableMap<String,Object> params = ImmutableMap.of("personId", getPersonId());
-        var write = "update person set lastSeen = 209483257 where id = $personId";
-        var input = PostgresDriverUtils.substituteParameters(write, params);
-
-        st.executeUpdate(input);
+        var write1 = "select * from person where id = $personId for update";
+        var input1 = PostgresDriverUtils.substituteParameters(write1, params);
+        st.executeUpdate(input1);
+        var write2 = "update person set lastSeen = 209483257 where id = $personId";
+        var input2 = PostgresDriverUtils.substituteParameters(write2, params);
+        st.executeUpdate(input2);
     }
 
     public void readTransaction(Statement st) throws SQLException {

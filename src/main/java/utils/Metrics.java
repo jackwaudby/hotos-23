@@ -51,6 +51,8 @@ public class Metrics {
                     writer.append(String.valueOf(committed.get(i)));
                     writer.append(",");
                     writer.append(String.valueOf(mammoth.get(i)));
+                    writer.append(",");
+                    writer.append(String.valueOf(aborted.get(i)));
                     writer.append("\n");
 
                 }

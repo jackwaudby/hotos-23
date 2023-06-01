@@ -1,3 +1,3 @@
 #!/bin/bash
 
-Rscript plot.R 
+Rscript scripts/plot.R 

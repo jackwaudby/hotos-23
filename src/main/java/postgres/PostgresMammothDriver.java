@@ -109,6 +109,7 @@ public class PostgresMammothDriver implements Driver {
         var startTime = System.nanoTime();
         metrics.markMammoth();
 
+        var survived = true;
         try (Connection conn = PostgresDriverUtils.startTransaction(ds); Statement st = conn.createStatement()) {
             if (balanced) {
                 st.execute(balancedMammoth);
@@ -117,14 +118,13 @@ public class PostgresMammothDriver implements Driver {
             }
             PostgresDriverUtils.commitTransaction(conn);
         } catch (SQLException e) {
-            System.out.println("Mammoth died early");
-            //            throw new RuntimeException(e);
+            survived = false;
         }
 
         metrics.markMammoth();
         var endTime = System.nanoTime();
         var duration = (double) (endTime - startTime) / 1000000.0 / 1000.0;
-        System.out.printf("Mammoth transaction finished in %.2f seconds\n", duration);
+        System.out.printf("Mammoth transaction finished in %.2f seconds. Survived: %s\n", duration, survived);
         out.put(0);
     }
 }

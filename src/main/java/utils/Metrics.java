@@ -13,6 +13,10 @@ public class Metrics {
     private final BlockingQueue<Integer> out;
     private int currentCommitted;
     private final List<Integer> committed;
+
+    private int currentAborted;
+    private final List<Integer> aborted;
+
     private int currentMammoth;
     private final List<Integer> mammoth;
 
@@ -20,8 +24,10 @@ public class Metrics {
         this.in = in;
         this.out = out;
         this.currentCommitted = 0;
+        this.currentAborted = 0;
         this.currentMammoth = 0;
         this.committed = new ArrayList<>();
+        this.aborted = new ArrayList<>();
         this.mammoth = new ArrayList<>();
     }
 
@@ -59,11 +65,13 @@ public class Metrics {
 
     private void collect() {
         synchronized (this) {
-            System.out.print("Committed: " + getCount() + "\r");
+            System.out.print("Committed: " + getCount() + "\r\n");
+            System.out.print("Aborted: " + getAbortedCount() + "\r");
             committed.add(getCount());
             mammoth.add(getMammoth());
             currentMammoth = 0;
             currentCommitted = 0;
+            currentAborted = 0;
         }
     }
 
@@ -79,9 +87,22 @@ public class Metrics {
         }
     }
 
+    private int getAbortedCount() {
+        synchronized (this) {
+            return currentAborted;
+        }
+    }
+
+
     public void increment() {
         synchronized (this) {
             currentCommitted++;
+        }
+    }
+
+    public void incrementAborted() {
+        synchronized (this) {
+            currentAborted++;
         }
     }
 

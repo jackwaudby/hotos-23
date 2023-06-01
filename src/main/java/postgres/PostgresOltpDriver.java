@@ -48,6 +48,7 @@ public class PostgresOltpDriver implements Driver {
                     try {
                         readWriteTransaction(st);
                     } catch (SQLException e) {
+                        incAborted();
                         System.out.println("Aborted");
                     }
                 } else {
@@ -80,6 +81,10 @@ public class PostgresOltpDriver implements Driver {
 
     private void incCommitted() {
         this.metrics.increment();
+    }
+
+    private void incAborted() {
+        this.metrics.incrementAborted();
     }
 
     private long getPersonId() {

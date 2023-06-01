@@ -87,6 +87,10 @@ public class BoltOltpDriver implements utils.Driver, AutoCloseable {
         this.metrics.increment();
     }
 
+    private void incAborted() {
+        this.metrics.incrementAborted();
+    }
+
     private long getPersonId() {
         return personIds.get(rand.nextInt(personIds.size()));
     }

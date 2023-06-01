@@ -18,9 +18,6 @@ export HOTOS_HOME=$HOME/hotos-23
 
 Set `dbms.security.auth_enabled=false` in `neo4j.conf`
 
-PAT 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
-
-scp -i ./ssh_keys/neo4j-server_key.pem azureuser@4.234.216.240:~/hotos-23/test.csv ./data.csv
 
 ## Evaluation 
 

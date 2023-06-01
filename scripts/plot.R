@@ -6,6 +6,7 @@ suppressPackageStartupMessages(library(ggplot2))
 suppressPackageStartupMessages(library(readr))
 
 raw = read_csv(file = "./test.csv",col_names = c("thpt","mammoth"))
+raw = raw[-1:-2,]
 
 p1 = ggplot(data = raw, aes(x = 1:nrow(raw), y = thpt)) +
   geom_line() + xlab("secs") + ylab("throughput (txn/s)") + 

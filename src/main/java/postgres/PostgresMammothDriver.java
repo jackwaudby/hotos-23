@@ -117,7 +117,8 @@ public class PostgresMammothDriver implements Driver {
             }
             PostgresDriverUtils.commitTransaction(conn);
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            System.out.println("Mammoth died early");
+            //            throw new RuntimeException(e);
         }
 
         metrics.markMammoth();

@@ -49,7 +49,6 @@ public class PostgresOltpDriver implements Driver {
                         readWriteTransaction(st);
                     } catch (SQLException e) {
                         incAborted();
-                        System.out.println("Aborted");
                     }
                 } else {
                     readTransaction(st);

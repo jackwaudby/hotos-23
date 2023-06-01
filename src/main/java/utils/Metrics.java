@@ -65,8 +65,7 @@ public class Metrics {
 
     private void collect() {
         synchronized (this) {
-            System.out.print("Committed: " + getCount() + "\r\n");
-            System.out.print("Aborted: " + getAbortedCount() + "\r");
+            System.out.print("Committed: " + getCount() + " Aborted: " + getAbortedCount() + "\r");
             committed.add(getCount());
             mammoth.add(getMammoth());
             currentMammoth = 0;

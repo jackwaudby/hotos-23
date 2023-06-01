@@ -14,7 +14,7 @@ public class PostgresDriverUtils {
     public static Connection startTransaction(PGConnectionPoolDataSource ds) throws SQLException {
         Connection conn = ds.getConnection();
         conn.setAutoCommit(false);
-        conn.createStatement().executeUpdate(PostgresDriverUtils.isolation_repeatable_read);
+        conn.createStatement().executeUpdate(PostgresDriverUtils.isolation_serializable);
         return conn;
     }
 

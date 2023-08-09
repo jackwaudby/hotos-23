@@ -1,4 +1,4 @@
-# HotOS 2023
+# VLDB 2023
 
 
 Env vars
@@ -21,19 +21,6 @@ Set `dbms.security.auth_enabled=false` in `neo4j.conf`
 
 ## Evaluation 
 
-### Balanced 
-
-1. Cascading delete 
-2. Community detection 
-3. Post visibility / going private
-4. Book/stock visibiltiy 
-
-### Unbalanced 
-
-1. Fake accounts 
-2. Path finding 
-
-
 * Neo4j enterprise 5.4.0
 * Azure Standard D48ds v5 (48 vcpus, 192 GiB memory)
 * LDBC dataset with 10K Person nodes, 346k Knows edges
@@ -49,35 +36,3 @@ Set `dbms.security.auth_enabled=false` in `neo4j.conf`
     * Return the top 10 Persons with the highest visited property
 * Rationale: detects central nodes in the network, i.e., the ones that are on most paths
 * Report throughput over time
-* Challenge: finding deeper path would improve the accuracy of the centrality algorithm, but even on relatively small graph the explodes the number of paths found. Thus, the transaction takes disproportionally longer. 3 deep takes 20 secs (22M paths), 4 deep takes ()
-
-2.1 
-* Gremlin is supported by Amazon Neptune and JanusGraph
-* MERGE either (i) matches existing nodes, or (ii) it creates new data if the requested pattern is not found. It either matches the whole pattern, or the whole pattern is created. MERGE will not work if partial matches are found.
-
-2.2.1
-* Can we find a way to make community detection more broad. The example we use for balanced in the evaluation is a centrality algorithm. These are balanced graph algorithms. 
-* I would argue they don't need to be written back, but having them avoids recomputation and allows the application to use this information as part of other (OLTP) transactions.
-* Politicans answer: its hard to say because each customer's workload is very distinct. Also, generally speaking we are conditioned at Neo4j to split things up to avoid hitting any boundaries, and/or running the heavy stuff on dedicated read replica in clusters, or dedicated instances running the GDS library 
-
-2.3
-The LDBC Interative workload is a popular graph database benchmark containing complex,
-processing-intensive reads queries, interspersed with short read queries, and insert operations. Whilst work is ongoing to include deletions operations similarly to what is described in Sec X, it remains lacking updates to node and edge labels and properties and  complex read-write transactions with arbitrary large and read- and write sets.
-
-3
-Neo4j's default isolation level is Read Committed, though it was demonstrated in X that it provides Monotonic Atomic View. Via Cypher explicit write locks can be taken on nodes to simulate improved isolation in some cases to prevent Lost Updates for example.
-
-CREATE 
-
-CREATE p = (n:Person {name: 'Jack', id: 1})-[:CREATED]->(r:Post {content: "rant", up: 0})
-RETURN p
-
-UNWIND range(1, 50) AS i
-MERGE (p:Person { id: i })
-ON CREATE
-MATCH (j:Person {name: 'Jack', id: 1})
-CREATE (j)-[r:KNOWS {close: false}]->(p)
-
-UNWIND range(1, 50) AS i
-MATCH (j:Person {name: 'Jack', id: 1}), MATCH (f:Person {name: 'Jack', id: i}), 
-CREATE (j)-[r:KNOWS {close: false}]->(f)

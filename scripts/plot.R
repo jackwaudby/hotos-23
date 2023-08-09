@@ -5,7 +5,7 @@ if(length(new.packages)) install.packages(new.packages)
 suppressPackageStartupMessages(library(ggplot2))
 suppressPackageStartupMessages(library(readr))
 
-raw = read_csv(file = "./test.csv",col_names = c("thpt","mammoth"))
+raw = read_csv(file = "./test.csv",col_names = c("thpt","mammoth","aborts"))
 raw = raw[-1:-2,]
 
 raw$relthpt = raw$thpt / max(raw$thpt)

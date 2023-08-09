@@ -20,6 +20,9 @@ public class PostgresOltpDriver implements Driver {
     private final List<Long> personIds;
     private final Metrics metrics;
     private final BlockingQueue<Integer> in;
+
+
+
     private final BlockingQueue<Integer> out;
 
     private final boolean rw;

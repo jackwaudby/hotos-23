@@ -55,3 +55,7 @@ export LDBC_SNB_DATAGEN_JAR=$(sbt -batch -error 'print assembly / assemblyOutput
 ```
 
 ./tools/run.py --cores 2 -- --mode bi --format csv --scale-factor ${SF} --output-dir out-sf${SF}/ --explode-edges --epoch-millis  --format-options header=false,quoteAll=true,compression=gzip
+
+
+mvn clean package && java -cp ./target/hotos-1.0-SNAPSHOT.jar Main -d
+ 60 -s postgres

@@ -72,7 +72,7 @@ mvn clean package
 
 Run experiment: 
 ```
-java -cp ./target/hotos-1.0-SNAPSHOT.jar Main --balanced <true/false> --duration <experiment_duration> --mammothDelay <mammothStartDelay> --readClients <readTxnClients> -writeClients <writeTxnClients> --uri <neo4jUri>
+java -cp ./target/mammothsareslow-1.0-SNAPSHOT.jar Main --balanced <true/false> --duration <experiment_duration> --mammothDelay <mammothStartDelay> --readClients <readTxnClients> -writeClients <writeTxnClients> --uri <neo4jUri>
 ```
 
 Stop Neo4j:

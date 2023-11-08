@@ -39,7 +39,7 @@ cd ${NEO4J_HOME}
     --relationships=WORK_AT="${NEO4J_HEADER_DIR}/dynamic/Person_workAt_Company${NEO4J_HEADER_EXTENSION}$(${FIND_COMMAND} ${NEO4J_CSV_DIR}/initial_snapshot/dynamic/Person_workAt_Company -type f -name ${NEO4J_PART_FIND_PATTERN} -printf ',%p')" \
     --delimiter '|'
 
-cd ${HOTOS_HOME}/scripts
+cd ${MAMMOTH_HOME}/scripts
 
 # ./tools/run.py --cores 2 -- --mode bi --format csv --scale-factor ${SF}  --output-dir out-sf${SF}/ --explode-edges --epoch-millis  --format-options header=false,quoteAll=true,compression=gzip
 

@@ -2,7 +2,7 @@ suppressPackageStartupMessages(library(ggplot2))
 suppressPackageStartupMessages(library(readr))
 suppressPackageStartupMessages(library(dplyr))
 
-raw = read_csv(file = "./scripts/results.csv",col_names = TRUE,show_col_types = FALSE)
+raw = read_csv(file = "./results.csv",col_names = TRUE,show_col_types = FALSE)
 
 range = raw %>% group_by(communities) %>%
   dplyr::summarize(rangeLocked = median(rangeLocked))
@@ -18,6 +18,5 @@ p1 = ggplot(data = raw, aes(x = communities)) +
   xlab("communities") + ylab("keys locked") + 
   scale_colour_manual(name = '', values =c('black'='black','red'='red'), labels = c('community','range')) +
   theme_bw() 
-p1
 
-  # ggsave("centralised-thpt.png", p1, width = 8, height = 6, device = "png")
+ggsave("lock-sim.png", p1, width = 8, height = 6, device = "png")

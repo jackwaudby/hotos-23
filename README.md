@@ -63,7 +63,7 @@ The values used are `--keys=100000`, `--transactionSize=10`, `--ranges` and `--c
 Results are outputted to `results.csv`, the file format is `keys,transactionSize,rangeSize,communities,rangeLocked,communityLocked`. 
 The `rangeLocked` and `communityLocked` columns report the nodes locked under each lock escalation strategy.
 
-Results can be plotted using `Rscript plot.R`, displaying the locks taken by each strategy are the range size and community count is varied.
+Results can be plotted using `Rscript plot.R`, displaying the locks taken by each strategy are the range size and community count is varied (see Figure 2 in the paper).
 
 
 ## Mammoth Experiment
@@ -116,6 +116,26 @@ Run experiment:
 java -cp ./target/mammothsareslow-1.0-SNAPSHOT.jar Main --balanced <true/false> --duration <experiment_duration> --mammothDelay <mammothStartDelay> --readClients <readTxnClients> -writeClients <writeTxnClients> --uri <neo4jUri>
 ```
 
+Parameters:
+```
+-b, --balanced=<BALANCED>              Balanced or unbalanced workload
+-d, --duration=<EXPERIMENT_DURATION>   Experiment duration (secs)
+-m, --mammothDelay=<MAMMOTH_DELAY>     Delay before starting mammoth transaction (secs)
+-r, --readClients=<READERS>            Read clients
+-u, --uri=<URI>                        Neo4j URI
+ w, --writeClients=<WRITERS>           Write clients
+```
+
+Fixed values used are `--duration=75`, `--mammothDelay=30`; `--uri` is dependent on your setup but if run locally would be `bolt://localhost:7687`. 
+`--balanced` either `true` or `false` is dependent on which experiment you wish to run. 
+`--writeClients` and `--readClients` were varied to explore performance under different ratios.
+
+Results are outputted to `results.csv`, the file format is `throughput/sec,aborts`. 
+The `rangeLocked` and `communityLocked` columns report the nodes locked under each lock escalation strategy.
+
+Results can be plotted using `Rscript plot.R`, displaying the locks taken by each strategy are the range size and community count is varied.
+
+
 Stop Neo4j:
 ```
 ./stop-dbms.sh
@@ -126,10 +146,10 @@ Delete database:
 ./delete-database.sh
 ```
 
-Results are outputted to `results.csv` and can be plotted using:
+Results are outputted to `results.csv`, the file format is `throughput/sec,aborts` and can be plotted using:
 ```
 ./make-plot.sh
 ```
-
+This plots the throughput over time, denoting the start and end time of the mammoth that was executed (see Figures 1a and 1b in the paper).
 
 

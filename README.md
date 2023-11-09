@@ -5,7 +5,12 @@ The repository currently contains mammoth experiment and community lock simulati
 This repository is structured as follows:
 
 * /sim-lock-escalation - community lock simulation code
+    * /src - contains Java source files for the simulation program
+    * /scripts - contains utility scripts for running the experiment and plotting the results
 * /mammoth-exp - mammoth experiment code 
+    * /src - contains Java source files for the test driver program
+    * /scripts - contains utility scripts for running the experiment, i.e., starting/stopping the DBMS, loading data, and plotting results 
+    * b-params.csv and u-params.csv files are used by the driver for parameterising transactions for the balanced experiment and unbalanced experiment respectively 
 
 Prerequisites:
 * Maven 3.8.5

@@ -29,7 +29,7 @@ In the experiment a graph with 100K nodes is generated and each node assigned to
 Ranges are contiguous groups of ids (e.g., the first range includes node 1 to node 99). 
 For communities, nodes are randomly assigned to one (i.e., each community will contain a set of node ids that may not align with the sequential order of ids). 
 We then simulate traversal operations on the graph, with an 85% probability that each subsequent operation within a traversal  will access a node in the same community as the previous one. 
-We then compare the node locked under range locks vs community locks. 
+We then compare the number of nodes locked under range locks vs community locks. 
 For more information see Section 5.1 of the paper.
 
 ### How to run this experiment
@@ -49,8 +49,21 @@ Run the simulation:
 java -cp ./target/sim-lock-escalation-1.0-SNAPSHOT.jar Main --keys <keys> --transactionSize <transactionSize> --communities <communities> --ranges <ranges>
 ```
 
+Parameters:
+```
+ -c, --communities=<communities>         Number of communities
+ -k, --keys=<keys>                       Database size
+ -r, --ranges=<ranges>                   Number of ranges
+ -t, --transactionSize=<transactionSize> Transaction size
+```
+
 The experiment in the paper can be reproduced by navigating to `scripts/` and executing `run.sh`. 
-Results are outputted to `results.csv` and can be plotted using `Rscript plot.R`
+The values used are `--keys=100000`, `--transactionSize=10`, `--ranges` and `--communities` are varied from 10 to 30.
+
+Results are outputted to `results.csv`, the file format is `keys,transactionSize,rangeSize,communities,rangeLocked,communityLocked`. 
+The `rangeLocked` and `communityLocked` columns report the nodes locked under each lock escalation strategy.
+
+Results can be plotted using `Rscript plot.R`, displaying the locks taken by each strategy are the range size and community count is varied.
 
 
 ## Mammoth Experiment
@@ -58,8 +71,8 @@ Results are outputted to `results.csv` and can be plotted using `Rscript plot.R`
 ### What is this experiment?
 
 The goal of this experiment is evaluate the performance of an existing system (Neo4j) on balanced and unbalanced mammoth transactions. 
-It involves executing a workload consisting a configurable ratio of OLTP-style read-only and read-write transactions that access or update data on nodes in the graph. 
-A mammoth transaction (either balanced and unbalanced) is then ran concurrently and the drop in throughput measured.
+It involves executing a workload consisting of a configurable ratio of OLTP-style read-only and read-write transactions that access or update data on nodes in the graph. 
+A mammoth transaction (either balanced and unbalanced) is then ran concurrently with the OLTP-style transactions and the drop in throughput measured.
 For more information see Section 3 of the paper.
 
 ### How to run this experiment

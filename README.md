@@ -22,6 +22,18 @@ Prerequisites:
 
 ## Community Lock Simulation 
 
+### What is this experiment?
+
+The goal of this experiment is to measure the impact of different lock escalation strategies.
+In the experiment a graph with 100K nodes is generated and each node assigned to a range and a community based on its unique id.
+Ranges are contiguous groups of ids (e.g., the first range includes node 1 to node 99). 
+For communities, nodes are randomly assigned to one (i.e., each community will contain a set of node ids that may not align with the sequential order of ids). 
+We then simulate traversal operations on the graph, with an 85% probability that each subsequent operation within a traversal  will access a node in the same community as the previous one. 
+We then compare the node locked under range locks vs community locks. 
+For more information see Section 5.1 of the paper.
+
+### How to run this experiment
+
 Navigate to the directory:
 ```
 cd sim-lock-escalation 
@@ -42,6 +54,15 @@ Results are outputted to `results.csv` and can be plotted using `Rscript plot.R`
 
 
 ## Mammoth Experiment
+
+### What is this experiment?
+
+The goal of this experiment is evaluate the performance of an existing system (Neo4j) on balanced and unbalanced mammoth transactions. 
+It involves executing a workload consisting a configurable ratio of OLTP-style read-only and read-write transactions that access or update data on nodes in the graph. 
+A mammoth transaction (either balanced and unbalanced) is then ran concurrently and the drop in throughput measured.
+For more information see Section 3 of the paper.
+
+### How to run this experiment
 
 Generate the LDBC SF 1 dataset. Detailed instructions can be found [here](https://github.com/ldbc/ldbc_snb_datagen_spark/).
 

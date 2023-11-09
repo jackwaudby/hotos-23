@@ -12,6 +12,8 @@ This repository is structured as follows:
     * `/scripts` - contains utility scripts for running the experiment, i.e., starting/stopping the DBMS, loading data, and plotting results 
     * `b-params.csv `and `u-params.csv` files are used by the driver for parameterising transactions for the balanced experiment and unbalanced experiment respectively 
 
+Note, `/sim-lock-escalation` and `/mammoth-exp` are separate Java projects.
+
 Prerequisites:
 * Maven 3.8.5
 * Java 17

@@ -1,16 +1,16 @@
 # Mammoths Are Slow: The Overlooked Transactions of Graph Data
 
-The repository currently contains mammoth experiment and community lock simulation code for _"Mammoths Are Slow: The Overlooked Transactions of Graph Data"_.
+The repository currently contains the mammoth experiment and code community lock simulation code for _"Mammoths Are Slow: The Overlooked Transactions of Graph Data"_.
 
 This repository is structured as follows:
 
 * `/sim-lock-escalation` - community lock simulation code
     * `/src` - contains Java source files for the simulation program
-    * `/scripts `- contains utility scripts for running the experiment and plotting the results
+    * `/scripts` - contains utility scripts for running the experiment and plotting the results
 * `/mammoth-exp` - mammoth experiment code 
     * `/src` - contains Java source files for the test driver program
     * `/scripts` - contains utility scripts for running the experiment, i.e., starting/stopping the DBMS, loading data, and plotting results 
-    * `b-params.csv `and `u-params.csv` files are used by the driver for parameterising transactions for the balanced experiment and unbalanced experiment respectively 
+    * `b-params.csv` and `u-params.csv` files are used by the driver for parameterising transactions for the balanced experiment and unbalanced experiments respectively 
 
 Note, `/sim-lock-escalation` and `/mammoth-exp` are separate Java projects.
 
@@ -63,7 +63,7 @@ The values used are `--keys=100000`, `--transactionSize=10`, `--ranges` and `--c
 Results are outputted to `results.csv`, the file format is `keys,transactionSize,rangeSize,communities,rangeLocked,communityLocked`. 
 The `rangeLocked` and `communityLocked` columns report the nodes locked under each lock escalation strategy.
 
-Results can be plotted using `Rscript plot.R`, displaying the locks taken by each strategy are the range size and community count is varied (see Figure 2 in the paper).
+Results can be plotted using `Rscript plot.R`, displaying the locks taken by each strategy as the range size and community count is varied (see Figure 2 in the paper).
 
 
 ## Mammoth Experiment
@@ -127,14 +127,8 @@ Parameters:
 ```
 
 Fixed values used are `--duration=75`, `--mammothDelay=30`; `--uri` is dependent on your setup but if run locally would be `bolt://localhost:7687`. 
-`--balanced` either `true` or `false` is dependent on which experiment you wish to run. 
+`--balanced` is either `true` or `false` and dependent on which experiment you wish to run. 
 `--writeClients` and `--readClients` were varied to explore performance under different ratios.
-
-Results are outputted to `results.csv`, the file format is `throughput/sec,aborts`. 
-The `rangeLocked` and `communityLocked` columns report the nodes locked under each lock escalation strategy.
-
-Results can be plotted using `Rscript plot.R`, displaying the locks taken by each strategy are the range size and community count is varied.
-
 
 Stop Neo4j:
 ```
